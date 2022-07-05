@@ -63,10 +63,6 @@ public class AppSyncManager {
             })
     }
     
-    func handleSilentNotificationSync(syncData: [String:Any]) {
-        
-    }
-    
     /// Checks if there are any release for the release Node provided (Can be either native node or hybrid node)
     /// - Returns: Bool saying if there are any release and release type
     func checkForRelease<T>(node: Node<T>) -> (Bool, ReleaseType) {

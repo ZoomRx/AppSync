@@ -15,13 +15,13 @@ public class AppSyncManager {
     
     /// Starts the syncing process
     public func appSync() {
-        let hybridVersion = UserDefaults.standard.string(forKey: Constants.Keys.hybridVersion) ?? "1.0.0"
         let parameters: [String:Any] = [
-            Constants.Keys.hybridVersion : hybridVersion,
+            Constants.Keys.hybridVersion : Constants.hybridVersion,
             Constants.Keys.nativeVersion : Constants.nativeVersion,
             Constants.Keys.platform : Constants.ios,
             Constants.Keys.platformVersion : UIDevice.current.systemVersion,
-            Constants.Keys.deviceID : UIDevice.current.identifierForVendor!.uuidString
+            Constants.Keys.deviceID : UIDevice.current.identifierForVendor!.uuidString,
+            Constants.Keys.notificationToken : Constants.deviceToken
         ]
         
         let headers: HTTPHeaders = [
@@ -42,15 +42,16 @@ public class AppSyncManager {
                         return
                     }
                     
+                    if let hybridVersion = responseData.hybrid.release?.version {
+                        UserDefaults.standard.set(hybridVersion, forKey: Constants.Keys.hybridVersion)
+                    }
+                    
                     let (hasNativeRelease, nativeReleaseType) = checkForRelease(node: responseData.native)
-                        
                     if hasNativeRelease {
                         delegate?.didFinishSync(with: .native, syncData: [Constants.nativeReleaseType : nativeReleaseType, Constants.zipFiles : responseData.hybrid.release?.zips ?? [ZipData]()])
                     } else {
                         let (hasHybridRelease, hybridReleaseType) = checkForRelease(node: responseData.hybrid)
                         if hasHybridRelease {
-                            UserDefaults.standard.set(responseData.hybrid.release?.version, forKey: Constants.Keys.hybridVersion)
-                            UserDefaults.standard.synchronize()
                             delegate?.didFinishSync(with: .hybrid, syncData: [Constants.hybridReleaseType : hybridReleaseType, Constants.zipFiles : responseData.hybrid.release?.zips ?? [ZipData]()])
                         } else {
                             delegate?.didFinishSync(with: .none, syncData: [:])
@@ -80,5 +81,23 @@ public class AppSyncManager {
             return (false, .none)
         }
         return (true, releaseType)
+    }
+    
+    public func getZipFilesList(from releaseData: [String:Any]) -> [ZipData] {
+        do {
+            let data = try JSONSerialization.data(withJSONObject: releaseData, options: .prettyPrinted)
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            do {
+                let hybridRelease = try decoder.decode(HybridRelease.self, from: data)
+                UserDefaults.standard.set(hybridRelease.version, forKey: Constants.Keys.hybridVersion)
+                return hybridRelease.zips
+            } catch {
+                return []
+            }
+        } catch {
+            return []
+        }
+
     }
 }

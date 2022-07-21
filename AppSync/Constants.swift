@@ -16,8 +16,6 @@ internal struct Constants {
     static let projectID = Bundle.main.infoDictionary?["projectID"] as? String ?? ""
     static let nativeVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
     static let defaultHybridVersion = Bundle.main.infoDictionary?[Constants.Keys.hybridVersion] as? String ?? "1.0.0"
-    static let hybridVersion = UserDefaults.standard.string(forKey: Constants.Keys.hybridVersion) ?? defaultHybridVersion
-    static let deviceToken = UserDefaults.standard.string(forKey: "device_token") ?? "123456789"
     struct Keys {
         static let hybridVersion = "hybrid_version"
         static let nativeVersion = "native_version"

@@ -15,13 +15,16 @@ public class AppSyncManager {
     
     /// Starts the syncing process
     public func appSync() {
+        // Adding these two here instead of Constants as static variable are initialised only once.
+        let hybridVersion = UserDefaults.standard.string(forKey: Constants.Keys.hybridVersion) ?? Constants.defaultHybridVersion
+        let deviceToken = UserDefaults.standard.string(forKey: "device_token") ?? "123456789"
         let parameters: [String:Any] = [
-            Constants.Keys.hybridVersion : Constants.hybridVersion,
+            Constants.Keys.hybridVersion : hybridVersion,
             Constants.Keys.nativeVersion : Constants.nativeVersion,
             Constants.Keys.platform : Constants.ios,
             Constants.Keys.platformVersion : UIDevice.current.systemVersion,
             Constants.Keys.deviceID : UIDevice.current.identifierForVendor!.uuidString,
-            Constants.Keys.notificationToken : Constants.deviceToken
+            Constants.Keys.notificationToken : deviceToken
         ]
         
         let headers: HTTPHeaders = [

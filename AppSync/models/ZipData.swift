@@ -12,7 +12,7 @@ public class ZipData: Codable {
     public var contentHash: String
     public var url: String
     
-    init(name: String, contentHash: String, url: String) {
+    public init(name: String, contentHash: String, url: String) {
         self.name = name
         self.contentHash = contentHash
         self.url = url
